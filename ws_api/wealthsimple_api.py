@@ -122,7 +122,7 @@ class WealthsimpleAPIBase:
             for line in response.splitlines():
                 # Look for wssdi in set-cookie headers
                 if not self.session.wssdi and "set-cookie:" in line.lower():
-                    match = re.search(r"wssdi=([a-f0-9]+);", line, re.IGNORECASE)
+                    match = re.search(r"wssdi=([a-f0-9-]+);", line, re.IGNORECASE)
                     if match:
                         self.session.wssdi = match.group(1)
 
@@ -149,7 +149,7 @@ class WealthsimpleAPIBase:
 
             # Look for clientId in the app JS file
             match = re.search(
-                r'production:.*clientId:"([a-f0-9]+)"', response, re.IGNORECASE
+                r'production.*clientId:"([a-f0-9]+)"', response, re.IGNORECASE
             )
             if match:
                 self.session.client_id = match.group(1)
