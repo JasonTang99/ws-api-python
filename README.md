@@ -151,9 +151,9 @@ class WSApiTest:
         
                 # Cash and positions balances
                 balances = ws.get_account_balances(account['id'])
-                cash_balance_key = 'sec-c-usd' if account['currency'] == 'USD' else 'sec-c-cad'
-                cash_balance = float(balances.get(cash_balance_key, 0))
-                print(f"  Available (cash) balance: {cash_balance} {account['currency']}")
+                for cash_balance_key in [ 'sec-c-usd', 'sec-c-cad']:
+                    cash_balance = float(balances.get(cash_balance_key, 0))
+                    print(f"  Available (cash) balance: {cash_balance} {cash_balance_key.split('-')[-1].upper()}")
         
                 if len(balances) > 1:
                     print("  Assets:")
