@@ -744,3 +744,142 @@ class WealthsimpleAPI(WealthsimpleAPIBase):
         )
 
         return account
+
+    def get_identity_current_financials(
+        self,
+        currency: str,
+        account_ids: list[str] | None = None,
+        start_date: str | None = None,
+    ) -> Any:
+        """Retrieve current financials for an identity.
+
+        Args:
+            currency: Currency to return amounts in (CAD or USD).
+            account_ids: Optional list of account IDs to filter by.
+            start_date: Optional start date in 'YYYY-MM-DD' format for computing
+                simple returns over a specific period.
+
+        Returns:
+            dict: Current financials including net liquidation value, net deposits,
+                and simple returns.
+
+        Raises:
+            WSApiException: If the response format is unexpected.
+        """
+        variables = {
+            "identityId": self.get_token_info().get("identity_canonical_id"),
+            "currency": currency,
+        }
+        if account_ids is not None:
+            variables["accountIds"] = account_ids
+        if start_date is not None:
+            variables["startDate"] = start_date
+
+        return self.do_graphql_query(
+            "FetchIdentityCurrentFinancials",
+            variables,
+            "identity.financials.current",
+            "object",
+        )
+
+    def get_account_unrealized_pnl(self, account_id: str, currency: str) -> Any:
+        """Retrieve unrealized P&L for a specific account.
+
+        Args:
+            account_id: The account ID to retrieve unrealized P&L for.
+            currency: Currency to return amounts in (CAD or USD).
+
+        Returns:
+            dict: Unrealized P&L including amount and rate.
+
+        Raises:
+            WSApiException: If the response format is unexpected.
+        """
+        return self.do_graphql_query(
+            "FetchAccountUnrealizedPnL",
+            {
+                "id": account_id,
+                "currency": currency,
+            },
+            "account.financials.currentCombined.unrealizedPnL",
+            "object",
+        )
+
+    def get_identity_realized_returns(
+        self,
+        currency: str,
+        account_ids: list[str] | None = None,
+        start_date: str | None = None,
+        first: int | None = None,
+    ) -> Any:
+        """Retrieve realized capital gains returns for an identity.
+
+        Args:
+            currency: Currency to return amounts in (CAD or USD).
+            account_ids: Optional list of account IDs to filter by.
+            start_date: Optional start date in 'YYYY-MM-DD' format.
+            first: Optional limit on the number of securities in the breakdown.
+
+        Returns:
+            dict: Realized returns including total value and per-security breakdown.
+
+        Raises:
+            WSApiException: If the response format is unexpected.
+        """
+        variables = {
+            "identityId": self.get_token_info().get("identity_canonical_id"),
+            "currency": currency,
+        }
+        if account_ids is not None:
+            variables["accountIds"] = account_ids
+        if start_date is not None:
+            variables["startDate"] = start_date
+        if first is not None:
+            variables["first"] = first
+
+        return self.do_graphql_query(
+            "FetchIdentityRealizedReturns",
+            variables,
+            "identity.financials.realizedReturns",
+            "object",
+        )
+
+    def get_dividends(
+        self,
+        currency: str,
+        account_ids: list[str] | None = None,
+        start_date: str | None = None,
+        include_issuing_security_breakdown: bool = False,
+    ) -> Any:
+        """Retrieve dividend income for an identity.
+
+        Args:
+            currency: Currency to return amounts in (CAD or USD).
+            account_ids: Optional list of account IDs to filter by.
+            start_date: Optional start date in 'YYYY-MM-DD' format.
+            include_issuing_security_breakdown: Whether to include a per-security
+                breakdown of dividends.
+
+        Returns:
+            dict: Dividend income including total value and optional per-security
+                breakdown.
+
+        Raises:
+            WSApiException: If the response format is unexpected.
+        """
+        variables = {
+            "identityId": self.get_token_info().get("identity_canonical_id"),
+            "currency": currency,
+            "includeIssuingSecurityBreakdown": include_issuing_security_breakdown,
+        }
+        if account_ids is not None:
+            variables["accountIds"] = account_ids
+        if start_date is not None:
+            variables["startDate"] = start_date
+
+        return self.do_graphql_query(
+            "FetchDividendsV2",
+            variables,
+            "identity.financials.dividendsV2",
+            "object",
+        )
