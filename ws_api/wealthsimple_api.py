@@ -71,7 +71,9 @@ class WealthsimpleAPIBase:
             headers["User-Agent"] = WealthsimpleAPI.user_agent
 
         try:
-            response = requests.request(method, url, json=data, headers=headers)
+            response = requests.request(
+                method, url, json=data, headers=headers, verify=True
+            )
 
             if return_headers:
                 # Combine headers and body as a single string
